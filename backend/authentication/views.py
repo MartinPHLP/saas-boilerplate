@@ -13,11 +13,13 @@ from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth import get_user_model
 from core.settings import FRONTEND_URL
 from email.message import EmailMessage
+import logging
 import certifi
 import smtplib
 import ssl
 import os
-import logging
+from billing.models import Subscription
+import stripe
 
 
 logger = logging.getLogger(__name__)
@@ -63,7 +65,7 @@ class RegisterView(APIView):
 
         if serializer.is_valid():
             user = serializer.save()
-            user.is_active = False  # Désactiver le compte jusqu'à la vérification
+            user.is_active = False
             user.save()
 
             token = default_token_generator.make_token(user)
@@ -75,6 +77,7 @@ class RegisterView(APIView):
                 return Response({
                     'message': 'Registration successful. Please check your email to verify your account.'
                 }, status=status.HTTP_201_CREATED)
+
             else:
                 return Response({
                     'error': 'Error sending verification email'
@@ -115,8 +118,22 @@ class DeleteAccountView(APIView):
         user = request.user
 
         if user.is_authenticated:
+            stripe.api_key = settings.STRIPE_SECRET_KEY_TEST
+            subscriptions = Subscription.objects.filter(user=user)
+
+            for subscription in subscriptions:
+                try:
+                    stripe.Subscription.modify(
+                        subscription.subscription_id,
+                        cancel_at_period_end=True
+                    )
+                    subscription.delete()
+
+                except stripe.error.StripeError as e:
+                    logger.error(f"Error cancelling Stripe subscription: {str(e)}")
+
             user.delete()
-            logger.info(f"User deleted successfully: {user.username}")
+            logger.info(f"User and subscriptions deleted successfully: {user.username}")
             return Response({
                 'message': 'Account deleted successfully'
             }, status=status.HTTP_200_OK)
@@ -210,7 +227,6 @@ class ResetPasswordView(APIView):
 
     def post(self, request, uid, token):
         logger.info(f"Attempting password reset with uid: {uid} and token")
-
         new_password = request.data.get('new_password')
 
         if not new_password:
@@ -244,6 +260,37 @@ class ResetPasswordView(APIView):
                 'error': 'Invalid reset link'
             }, status=status.HTTP_400_BAD_REQUEST)
 
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        current_password = request.data.get('current_password')
+        new_password = request.data.get('new_password')
+
+        if not current_password or not new_password:
+            return Response({
+                'error': 'Both current and new passwords are required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Vérifier si le mot de passe actuel est correct
+        if not user.check_password(current_password):
+            return Response({
+                'error': 'Current password is incorrect'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Changer le mot de passe
+        user.set_password(new_password)
+        user.save()
+
+        # Générer un nouveau token pour que l'utilisateur reste connecté
+        token = CustomTokenObtainPairSerializer.get_token(user)
+
+        return Response({
+            'message': 'Password successfully changed',
+            'token': str(token.access_token)
+        }, status=status.HTTP_200_OK)
+
 class VerifyEmailView(APIView):
     permission_classes = [AllowAny]
 
@@ -257,7 +304,6 @@ class VerifyEmailView(APIView):
                 user.is_email_verified = True
                 user.save()
 
-                # Générer le token de connexion
                 token = CustomTokenObtainPairSerializer.get_token(user)
 
                 return Response({
@@ -276,37 +322,8 @@ class VerifyEmailView(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
 
 
-# class TestPlanView(APIView):
-#     permission_classes = [IsAuthenticated]
+class TestPlanView(APIView):
+    permission_classes = [IsAuthenticated]
 
-#     def get(self, request):
-#         plan = request.user.plan
-#         message = {
-#             1: "You have access to the free plan",
-#             2: "You have access to the premium plan",
-#             3: "You have access to the pro plan"
-#         }
-#         return Response({
-#             'message': message[plan],
-#             'plan': plan
-#         })
-
-# class TestPremiumView(APIView):
-#     permission_classes = [IsAuthenticated, RequiredPlanPermission]
-#     required_plan = 2
-
-#     def get(self, request):
-#         return Response({
-#             'message': 'You have access to the premium features !',
-#             'plan': request.user.plan
-#         })
-
-# class TestProView(APIView):
-#     permission_classes = [IsAuthenticated, RequiredPlanPermission]
-#     required_plan = 3
-
-#     def get(self, request):
-#         return Response({
-#             'message': 'You have access to the pro features !',
-#             'plan': request.user.plan
-#         })
+    def get(self, request):
+        return Response({'message': 'You have access to this resource', 'plan': request.user.effective_plan}, status=status.HTTP_200_OK)

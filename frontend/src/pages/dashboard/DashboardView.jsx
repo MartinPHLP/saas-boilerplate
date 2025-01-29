@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { SettingsModal } from "./modals/settings/SettingsModal";
-import { UpgradeModal } from "./modals/UpgradeModal";
+import { UpgradeModal } from "./modals/upgrade/UpgradeModal";
 import { NavButton } from "./components/NavButton";
+import { DashboardContent } from "./components/DashboardContent";
 
 export function DashboardView({ onLogout }) {
   const [showSettings, setShowSettings] = useState(false);
@@ -44,19 +45,6 @@ export function DashboardView({ onLogout }) {
               <div className="w-px h-6 bg-neutral-dark" />{" "}
               {/* Séparateur vertical */}
               <NavButton
-                onClick={onLogout}
-                variant="icon"
-                title="Déconnexion"
-                icon={
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                  />
-                }
-              />
-              <NavButton
                 onClick={() => setShowSettings(true)}
                 variant="icon"
                 title="Paramètres"
@@ -77,15 +65,25 @@ export function DashboardView({ onLogout }) {
                   </>
                 }
               />
+              <NavButton
+                onClick={onLogout}
+                variant="icon"
+                title="Déconnexion"
+                icon={
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                  />
+                }
+              />
             </div>
           </div>
         </div>
       </nav>
 
-      {/* Contenu central */}
-      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
-        <h1 className="text-6xl font-bold">Dashboard</h1>
-      </div>
+      <DashboardContent />
 
       {/* Modals */}
       {showSettings && (

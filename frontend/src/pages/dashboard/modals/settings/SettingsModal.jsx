@@ -1,9 +1,12 @@
 import { useState } from "react";
-import { PaymentsHistoryModal } from "./modals/PaymentsHistoryModal";
+import { ChangePasswordModal } from "./modals/ChangePasswordModal";
+import { ManageSubscriptionModal } from "./modals/ManageSubscriptionModal";
 import { API_BASE_URL } from "../../../../config";
 
 export function SettingsModal({ onClose, onLogout }) {
-  const [showPaymentsModal, setShowPaymentsModal] = useState(false);
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+  const [showManageSubscriptionModal, setShowManageSubscriptionModal] =
+    useState(false);
 
   const handleDeleteAccount = async () => {
     if (
@@ -37,11 +40,7 @@ export function SettingsModal({ onClose, onLogout }) {
   };
 
   const handleManageSubscription = () => {
-    alert("Cette fonctionnalité sera bientôt disponible");
-  };
-
-  const handleShowPayments = () => {
-    setShowPaymentsModal(true);
+    setShowManageSubscriptionModal(true);
   };
 
   return (
@@ -58,16 +57,16 @@ export function SettingsModal({ onClose, onLogout }) {
         </div>
         <div className="space-y-3">
           <button
-            onClick={handleShowPayments}
-            className="w-full px-4 py-2 text-primary border border-primary rounded-md hover:bg-secondary-hover"
-          >
-            Payments history
-          </button>
-          <button
             onClick={handleManageSubscription}
             className="w-full px-4 py-2 text-primary border border-primary rounded-md hover:bg-secondary-hover"
           >
             Manage subscription
+          </button>
+          <button
+            onClick={() => setShowChangePasswordModal(true)}
+            className="w-full px-4 py-2 text-primary border border-primary rounded-md hover:bg-secondary-hover"
+          >
+            Change Password
           </button>
           <button
             onClick={handleDeleteAccount}
@@ -77,8 +76,15 @@ export function SettingsModal({ onClose, onLogout }) {
           </button>
         </div>
       </div>
-      {showPaymentsModal && (
-        <PaymentsHistoryModal onClose={() => setShowPaymentsModal(false)} />
+      {showChangePasswordModal && (
+        <ChangePasswordModal
+          onClose={() => setShowChangePasswordModal(false)}
+        />
+      )}
+      {showManageSubscriptionModal && (
+        <ManageSubscriptionModal
+          onClose={() => setShowManageSubscriptionModal(false)}
+        />
       )}
     </div>
   );

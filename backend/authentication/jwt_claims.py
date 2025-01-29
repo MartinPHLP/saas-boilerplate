@@ -5,7 +5,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        token['plan'] = user.plan
-        token['plan_name'] = user.get_plan_display()
+        token['plan'] = user.effective_plan
+        subscription = user.subscription.filter(cancelled_at__isnull=True).first()
+        token['subscription_id'] = subscription.subscription_id if subscription else None
 
         return token

@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   customer-service-db:
     image: postgres:15

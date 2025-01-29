@@ -1,24 +1,24 @@
 import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
-import { PlanCard } from "../components/PlanCard";
+import { PlanCard } from "../../components/PlanCard";
 import { useState } from "react";
 import axios from "axios";
-import { API_BASE_URL } from "../../../config";
+import { API_BASE_URL } from "../../../../config";
 
 export function UpgradeModal({ onClose }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const getCurrentPlan = () => {
+  const isCurrentPlan = (planId) => {
     const token = Cookies.get("access_token");
-    if (!token) return "No plan";
+    if (!token) return false;
 
     try {
       const decoded = jwtDecode(token);
-      return decoded.plan_name || "No plan";
+      return parseInt(decoded.plan) === planId;
     } catch (error) {
       console.error("Erreur de décodage du token:", error);
-      return "Error reading plan";
+      return false;
     }
   };
 
@@ -66,8 +66,6 @@ export function UpgradeModal({ onClose }) {
     },
   ];
 
-  const currentPlan = getCurrentPlan();
-
   return (
     <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
       <div className="bg-secondary rounded-lg p-6 w-[800px] max-h-[90vh] overflow-y-auto">
@@ -94,9 +92,7 @@ export function UpgradeModal({ onClose }) {
               name={plan.name}
               price={plan.price}
               features={plan.features}
-              isCurrentPlan={
-                currentPlan.toLowerCase() === plan.name.toLowerCase()
-              }
+              isCurrentPlan={isCurrentPlan(plan.id)}
               onSubscribe={() => handleSubscribe(plan.id)}
               isLoading={isLoading}
               disableSubscribe={plan.id === 1}

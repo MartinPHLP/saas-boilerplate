@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import UserPayment
+from .models import Subscription
 
 
-admin.site.register(UserPayment)
+admin.site.register(Subscription)
