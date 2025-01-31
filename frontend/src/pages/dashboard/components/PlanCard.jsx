@@ -1,3 +1,5 @@
+import React from "react";
+
 export function PlanCard({
   name,
   price,
@@ -8,19 +10,22 @@ export function PlanCard({
   disableSubscribe,
 }) {
   return (
-    <div className="border rounded-lg p-6 flex flex-col h-full hover:shadow-lg transition-shadow bg-secondary">
+    <div
+      className="border border-colorb/10 rounded-lg p-6 flex flex-col h-full
+                    hover:shadow-md transition-all duration-200 bg-white"
+    >
       <div className="mb-4">
-        <h3 className="text-xl font-bold mb-2">{name}</h3>
-        <p className="text-3xl font-bold mb-1">
+        <h3 className="text-xl font-bold mb-2 text-colord">{name}</h3>
+        <p className="text-3xl font-bold mb-1 text-colord">
           ${price}
-          <span className="text-sm text-gray-500">/month</span>
+          <span className="text-sm text-colorb ml-1">/month</span>
         </p>
       </div>
 
-      <ul className="space-y-2 mb-6 flex-grow">
+      <ul className="space-y-3 mb-6 flex-grow">
         {features.map((feature, index) => (
-          <li key={index} className="flex items-center text-gray-500">
-            <span className="mr-2">•</span>
+          <li key={index} className="flex items-center text-colorb">
+            <span className="mr-2 text-colora">•</span>
             {feature}
           </li>
         ))}
@@ -29,12 +34,14 @@ export function PlanCard({
       <button
         onClick={onSubscribe}
         disabled={isCurrentPlan || isLoading || disableSubscribe}
-        className={`w-full py-2 px-4 rounded-lg transition-colors ${
-          isCurrentPlan || disableSubscribe
-            ? "bg-neutral text-gray-500 cursor-not-allowed"
+        className={`w-full py-3 px-4 rounded-md transition-colors duration-200 font-medium ${
+          isCurrentPlan
+            ? "bg-colorc text-colora border-2 border-colora cursor-not-allowed"
+            : disableSubscribe
+            ? "bg-colorc text-colorb cursor-not-allowed"
             : isLoading
-            ? "bg-neutral-dark text-neutral cursor-wait"
-            : "bg-primary text-secondary hover:bg-primary-hover"
+            ? "bg-colorc text-colorb cursor-wait"
+            : "bg-colora text-white hover:bg-colorb"
         }`}
       >
         {isCurrentPlan

@@ -1,3 +1,9 @@
+import os
+import ssl
+import stripe
+import smtplib
+import logging
+import certifi
 from rest_framework import status
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
@@ -13,13 +19,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth import get_user_model
 from core.settings import FRONTEND_URL
 from email.message import EmailMessage
-import logging
-import certifi
-import smtplib
-import ssl
-import os
 from billing.models import Subscription
-import stripe
 
 
 logger = logging.getLogger(__name__)

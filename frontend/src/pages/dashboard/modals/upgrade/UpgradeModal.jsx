@@ -1,3 +1,4 @@
+import React from "react";
 import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
 import { PlanCard } from "../../components/PlanCard";
@@ -17,7 +18,7 @@ export function UpgradeModal({ onClose }) {
       const decoded = jwtDecode(token);
       return parseInt(decoded.plan) === planId;
     } catch (error) {
-      console.error("Erreur de décodage du token:", error);
+      console.error("Token decoding error:", error);
       return false;
     }
   };
@@ -30,14 +31,8 @@ export function UpgradeModal({ onClose }) {
       const token = Cookies.get("access_token");
       const response = await axios.post(
         `${API_BASE_URL}/api/billing/create-checkout-session/`,
-        {
-          plan_id: planId,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { plan_id: planId },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       window.location.href = response.data.checkout_url;
@@ -67,20 +62,22 @@ export function UpgradeModal({ onClose }) {
   ];
 
   return (
-    <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
-      <div className="bg-secondary rounded-lg p-6 w-[800px] max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-colord/50 backdrop-blur-sm flex items-center justify-center">
+      <div className="bg-white rounded-lg shadow-lg border border-colorb/10 p-8 w-[800px] max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-xl font-bold">Manage your subscription</h2>
+          <h2 className="text-2xl font-bold text-colord">
+            Manage your subscription
+          </h2>
           <button
             onClick={onClose}
-            className="text-neutral-dark hover:text-primary"
+            className="text-colorb hover:text-colord transition-colors p-2"
           >
             ✕
           </button>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg">
+          <div className="mb-6 p-4 bg-red-50 text-red-500 rounded-md text-sm">
             {error}
           </div>
         )}

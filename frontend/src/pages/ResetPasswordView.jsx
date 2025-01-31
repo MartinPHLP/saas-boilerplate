@@ -1,3 +1,4 @@
+import React from "react";
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../config";
@@ -62,9 +63,9 @@ export function ResetPasswordView() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral">
-      <div className="bg-secondary p-8 rounded-lg shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-6">Reset Password</h2>
+    <div className="min-h-screen flex items-center justify-center bg-colorc">
+      <div className="bg-white p-8 rounded-lg shadow-lg w-96 border border-colorb/10">
+        <h2 className="text-2xl font-bold mb-6 text-colord">Reset Password</h2>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
             <input
@@ -72,7 +73,7 @@ export function ResetPasswordView() {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="New password"
-              className="w-full p-2 border rounded"
+              className="w-full p-3 border border-colorb/20 rounded-md focus:outline-none focus:border-colora transition-colors"
               required
             />
             <input
@@ -80,13 +81,15 @@ export function ResetPasswordView() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Confirm password"
-              className="w-full p-2 border rounded"
+              className="w-full p-3 border border-colorb/20 rounded-md focus:outline-none focus:border-colora transition-colors"
               required
             />
             {status.message && (
               <div
-                className={`${
-                  status.type === "error" ? "text-primary" : "text-primary"
+                className={`p-3 rounded-md text-sm ${
+                  status.type === "error"
+                    ? "text-red-500 bg-red-50"
+                    : "text-colora bg-colorc"
                 }`}
               >
                 {status.message}
@@ -94,7 +97,7 @@ export function ResetPasswordView() {
             )}
             <button
               type="submit"
-              className="w-full bg-primary text-secondary py-2 rounded hover:bg-primary-hover"
+              className="w-full bg-colora text-white py-3 rounded-md hover:bg-colorb transition-colors font-medium"
             >
               Reset Password
             </button>

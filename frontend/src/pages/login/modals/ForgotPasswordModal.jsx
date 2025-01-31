@@ -1,3 +1,4 @@
+import React from "react";
 import { useState } from "react";
 import { API_BASE_URL } from "../../../config";
 
@@ -52,49 +53,51 @@ export function ForgotPasswordModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
-      <div className="bg-secondary p-8 rounded-lg w-96">
-        <h3 className="text-xl font-bold mb-4">Reset Password</h3>
+    <div className="fixed inset-0 bg-colord/50 backdrop-blur-sm flex items-center justify-center">
+      <div className="bg-white p-8 rounded-lg w-96 shadow-lg border border-colorb/10">
+        <h3 className="text-xl font-bold mb-6 text-colord">Reset Password</h3>
         <form onSubmit={handleSubmit}>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Your email"
-            className="w-full p-2 border rounded mb-4"
+            className="w-full p-3 border border-colorb/20 rounded-md focus:outline-none focus:border-colora transition-colors mb-4"
             required
             disabled={isLoading}
           />
           {status.message && (
             <div
-              className={`mb-4 ${
-                status.type === "error" ? "text-primary" : "text-primary"
+              className={`mb-4 p-3 rounded-md text-sm ${
+                status.type === "error"
+                  ? "text-red-500 bg-red-50"
+                  : "text-colora bg-colorc"
               }`}
             >
               {status.message}
             </div>
           )}
-          <div className="flex justify-end space-x-2">
+          <div className="flex justify-end space-x-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-neutral rounded hover:bg-secondary-hover"
+              className="px-4 py-2 bg-white text-colord border-2 border-colora rounded-md hover:bg-colorc transition-colors font-medium"
               disabled={isLoading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-primary text-secondary rounded hover:bg-primary-hover relative"
+              className="px-6 py-2 bg-colora text-white rounded-md hover:bg-colorb transition-colors font-medium relative"
               disabled={isLoading}
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
-                  <div className="w-5 h-5 border-t-2 border-b-2 border-secondary rounded-full animate-spin"></div>
+                  <div className="w-5 h-5 border-t-2 border-b-2 border-white rounded-full animate-spin"></div>
                   <span className="ml-2">Sending...</span>
                 </div>
               ) : (
-                "Send"
+                "Send Reset Link"
               )}
             </button>
           </div>

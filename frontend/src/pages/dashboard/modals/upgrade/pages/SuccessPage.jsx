@@ -1,3 +1,4 @@
+import React from "react";
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
@@ -31,9 +32,7 @@ export function SuccessPage() {
 
         if (response.status === 200) {
           Cookies.set("access_token", response.data.token);
-
           await new Promise((resolve) => setTimeout(resolve, 100));
-
           navigate("/");
           window.location.reload();
         }
@@ -48,13 +47,23 @@ export function SuccessPage() {
   }, [navigate, searchParams]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-secondary">
-      <div className="text-center p-8 rounded-lg">
-        <h1 className="text-2xl font-bold mb-4">Payment Successful!</h1>
-        <p className="mb-4">
+    <div className="min-h-screen flex items-center justify-center bg-colorc">
+      <div className="bg-white p-8 rounded-lg shadow-lg border border-colorb/10 text-center max-w-md">
+        <div className="mb-6 text-colora text-6xl">✓</div>
+        <h1 className="text-2xl font-bold mb-4 text-colord">
+          Payment Successful!
+        </h1>
+        <p className="mb-4 text-colorb">
           Thank you for your subscription. You will be redirected shortly...
         </p>
-        {error && <p className="text-red-600">{error}</p>}
+        {error && (
+          <div className="mt-4 p-4 bg-red-50 text-red-500 rounded-md text-sm">
+            {error}
+          </div>
+        )}
+        <div className="mt-6 flex justify-center">
+          <div className="w-8 h-8 border-t-2 border-b-2 border-colora rounded-full animate-spin"></div>
+        </div>
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+import React from "react";
 import { useState } from "react";
 
 export function RegisterView({ onRegister, onNavigate }) {
@@ -37,15 +38,21 @@ export function RegisterView({ onRegister, onNavigate }) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral">
+    <div className="min-h-screen flex items-center justify-center bg-colorc">
       <form
         onSubmit={handleSubmit}
-        className="bg-secondary p-8 rounded-lg shadow-md w-96"
+        className="bg-white p-8 rounded-lg shadow-lg w-96 border border-colorb/10"
       >
-        <h2 className="text-2xl font-bold mb-6">Create an account</h2>
-        {error && <div className="mb-4 text-red-500">{error}</div>}
+        <h2 className="text-2xl font-bold mb-6 text-colord">
+          Create an account
+        </h2>
+        {error && (
+          <div className="mb-4 text-red-500 bg-red-50 p-3 rounded-md text-sm">
+            {error}
+          </div>
+        )}
         {successMessage && (
-          <div className="mb-4 text-green-500 p-4 bg-green-50 rounded">
+          <div className="mb-4 text-colora bg-colorc p-4 rounded-md text-sm font-medium">
             {successMessage}
           </div>
         )}
@@ -55,7 +62,7 @@ export function RegisterView({ onRegister, onNavigate }) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
-            className="w-full p-2 border rounded"
+            className="w-full p-3 border border-colorb/20 rounded-md focus:outline-none focus:border-colora transition-colors"
             required
             disabled={isSubmitting}
           />
@@ -64,7 +71,7 @@ export function RegisterView({ onRegister, onNavigate }) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
-            className="w-full p-2 border rounded"
+            className="w-full p-3 border border-colorb/20 rounded-md focus:outline-none focus:border-colora transition-colors"
             required
             disabled={isSubmitting}
           />
@@ -73,18 +80,18 @@ export function RegisterView({ onRegister, onNavigate }) {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="Confirm password"
-            className="w-full p-2 border rounded"
+            className="w-full p-3 border border-colorb/20 rounded-md focus:outline-none focus:border-colora transition-colors"
             required
             disabled={isSubmitting}
           />
           <button
             type="submit"
-            className="w-full px-4 py-2 bg-primary text-secondary rounded hover:bg-primary-hover relative"
+            className="w-full bg-colora text-white py-3 rounded-md hover:bg-colorb transition-colors font-medium relative"
             disabled={isSubmitting}
           >
             {isSubmitting ? (
               <div className="flex items-center justify-center">
-                <div className="w-5 h-5 border-t-2 border-b-2 border-secondary rounded-full animate-spin"></div>
+                <div className="w-5 h-5 border-t-2 border-b-2 border-white rounded-full animate-spin"></div>
                 <span className="ml-2">Creating account...</span>
               </div>
             ) : (
@@ -94,10 +101,10 @@ export function RegisterView({ onRegister, onNavigate }) {
           <button
             type="button"
             onClick={() => onNavigate("home")}
-            className="w-full bg-neutral text-primary py-2 rounded hover:bg-secondary-hover"
+            className="w-full bg-white text-colord py-3 rounded-md border-2 border-colora hover:bg-colorc transition-colors font-medium"
             disabled={isSubmitting}
           >
-            Back
+            Back to Home
           </button>
         </div>
       </form>

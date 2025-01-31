@@ -1,3 +1,4 @@
+import React from "react";
 import { useState } from "react";
 import { ChangePasswordModal } from "./modals/ChangePasswordModal";
 import { ManageSubscriptionModal } from "./modals/ManageSubscriptionModal";
@@ -11,7 +12,7 @@ export function SettingsModal({ onClose, onLogout }) {
   const handleDeleteAccount = async () => {
     if (
       window.confirm(
-        "Are you sure you want to delete your account ? This action is irreversible."
+        "Are you sure you want to delete your account? This action is irreversible."
       )
     ) {
       try {
@@ -44,38 +45,42 @@ export function SettingsModal({ onClose, onLogout }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
-      <div className="bg-secondary rounded-lg p-6 w-96">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Settings</h2>
+    <div className="fixed inset-0 bg-colord/50 backdrop-blur-sm flex items-center justify-center">
+      <div className="bg-white rounded-lg shadow-lg border border-colorb/10 p-6 w-96">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-colord">Settings</h2>
           <button
             onClick={onClose}
-            className="text-neutral-dark hover:text-primary"
+            className="text-colorb hover:text-colord transition-colors p-2"
           >
             ✕
           </button>
         </div>
         <div className="space-y-3">
           <button
-            onClick={handleManageSubscription}
-            className="w-full px-4 py-2 text-primary border border-primary rounded-md hover:bg-secondary-hover"
+            onClick={() => setShowManageSubscriptionModal(true)}
+            className="w-full px-4 py-3 text-colord bg-white border-2 border-colora
+                       rounded-md hover:bg-colorc transition-colors duration-200 font-medium"
           >
             Manage subscription
           </button>
           <button
             onClick={() => setShowChangePasswordModal(true)}
-            className="w-full px-4 py-2 text-primary border border-primary rounded-md hover:bg-secondary-hover"
+            className="w-full px-4 py-3 text-colord bg-white border-2 border-colora
+                       rounded-md hover:bg-colorc transition-colors duration-200 font-medium"
           >
             Change Password
           </button>
           <button
             onClick={handleDeleteAccount}
-            className="w-full px-4 py-2 text-secondary bg-primary border border-primary rounded-md hover:bg-primary-hover"
+            className="w-full px-4 py-3 text-white bg-red-500
+                       rounded-md hover:bg-red-600 transition-colors duration-200 font-medium"
           >
             Delete my account
           </button>
         </div>
       </div>
+
       {showChangePasswordModal && (
         <ChangePasswordModal
           onClose={() => setShowChangePasswordModal(false)}

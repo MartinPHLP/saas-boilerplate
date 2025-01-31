@@ -1,3 +1,4 @@
+import React from "react";
 import { useState, useEffect } from "react";
 import { API_BASE_URL } from "../../../../../config";
 
@@ -94,23 +95,29 @@ export function ManageSubscriptionModal({ onClose }) {
   const renderSubscriptionStatus = (subscription) => {
     if (!subscription.is_active) {
       return (
-        <div className="text-yellow-600 text-sm">
+        <div className="text-colorb bg-colorc rounded-full px-3 py-1 text-sm">
           <p>Subscription cancelled</p>
-          <p>Access until: {formatDate(subscription.end_date)}</p>
+          <p className="text-xs">
+            Access until: {formatDate(subscription.end_date)}
+          </p>
         </div>
       );
     }
-    return <div className="text-green-600 text-sm">Active</div>;
+    return (
+      <div className="text-colora bg-colorc rounded-full px-3 py-1 text-sm">
+        Active
+      </div>
+    );
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
-      <div className="bg-secondary rounded-lg p-6 w-[32rem]">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-black">Manage Subscription</h2>
+    <div className="fixed inset-0 bg-colorc/30 backdrop-blur-sm flex items-center justify-center">
+      <div className="bg-white rounded-lg shadow-lg border border-colorb/10 p-6 w-[32rem]">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold text-colord">Manage Subscription</h2>
           <button
             onClick={onClose}
-            className="text-neutral-dark hover:text-primary"
+            className="text-colorb hover:text-colord transition-colors p-2"
           >
             ✕
           </button>
@@ -118,31 +125,35 @@ export function ManageSubscriptionModal({ onClose }) {
 
         <div className="space-y-4">
           {isLoading ? (
-            <div className="text-center py-4 text-primary">Loading...</div>
+            <div className="flex justify-center py-8">
+              <div className="w-8 h-8 border-t-2 border-b-2 border-colora rounded-full animate-spin"></div>
+            </div>
           ) : error ? (
-            <div className="text-red-500 text-center py-4">{error}</div>
+            <div className="p-4 bg-red-50 text-red-500 rounded-md text-sm text-center">
+              {error}
+            </div>
           ) : success ? (
-            <div className="text-green-600 text-center py-4">
+            <div className="p-4 bg-colorc text-colora rounded-md text-sm text-center">
               Subscription successfully cancelled. You will have access to
               premium features until {formatDate(subscription.end_date)}.
             </div>
           ) : !subscription ? (
-            <div className="text-neutral-dark text-center py-4">
+            <div className="text-colorb text-center py-4">
               No active subscription found
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="border border-neutral rounded-lg p-4 space-y-2">
+              <div className="border border-colorb/10 rounded-lg p-4 space-y-3 bg-white shadow-sm">
                 <div className="flex justify-between items-start">
-                  <h3 className="font-medium text-primary">
+                  <h3 className="font-medium text-colord">
                     {subscription.product_name}
                   </h3>
                   {renderSubscriptionStatus(subscription)}
                 </div>
-                <p className="text-sm text-neutral-dark">
+                <p className="text-sm text-colorb">
                   {subscription.price} € / {subscription.interval}
                 </p>
-                <p className="text-sm text-neutral-dark">
+                <p className="text-sm text-colorb">
                   {subscription.end_date
                     ? `Access until: ${formatDate(subscription.end_date)}`
                     : `Started on: ${formatDate(subscription.start_date)}`}
@@ -152,10 +163,19 @@ export function ManageSubscriptionModal({ onClose }) {
                 <div className="text-center">
                   <button
                     onClick={handleCancelSubscription}
-                    className="px-4 py-2 text-secondary bg-primary border border-primary rounded-md hover:bg-primary-hover"
+                    className="px-6 py-3 bg-white text-red-500 border-2 border-red-500 rounded-md
+                             hover:bg-red-50 transition-colors duration-200 font-medium
+                             disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={isLoading}
                   >
-                    Cancel Subscription
+                    {isLoading ? (
+                      <div className="flex items-center justify-center">
+                        <div className="w-5 h-5 border-t-2 border-b-2 border-red-500 rounded-full animate-spin"></div>
+                        <span className="ml-2">Processing...</span>
+                      </div>
+                    ) : (
+                      "Cancel Subscription"
+                    )}
                   </button>
                 </div>
               )}

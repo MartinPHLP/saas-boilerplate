@@ -1,3 +1,4 @@
+import React from "react";
 import { useState } from "react";
 import { SettingsModal } from "./modals/settings/SettingsModal";
 import { UpgradeModal } from "./modals/upgrade/UpgradeModal";
@@ -9,14 +10,14 @@ export function DashboardView({ onLogout }) {
   const [showUpgrade, setShowUpgrade] = useState(false);
 
   return (
-    <div className="min-h-screen bg-neutral relative">
-      {/* Barre de navigation */}
-      <nav className="bg-secondary shadow-md p-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
+    <div className="min-h-screen bg-colorc">
+      {/* Navigation bar */}
+      <nav className="bg-white shadow-sm border-b border-colorb/10">
+        <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
           {/* Logo */}
           <div className="flex items-center">
             <svg
-              className="w-8 h-8 text-primary"
+              className="w-8 h-8 text-colora"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -29,25 +30,24 @@ export function DashboardView({ onLogout }) {
                 d="M13 10V3L4 14h7v7l9-11h-7z"
               />
             </svg>
-            <span className="ml-2 text-xl font-bold">Logo</span>
+            <span className="ml-3 text-xl font-bold text-colord">Logo</span>
           </div>
 
-          <div className="flex items-center gap-2">
-            {/* Groupe des boutons de navigation */}
-            <div className="flex items-center gap-1 mr-4 p-1 bg-neutral rounded-lg">
+          <div className="flex items-center gap-3">
+            {/* Navigation buttons group */}
+            <div className="flex items-center gap-2 p-1.5 rounded-lg">
               <NavButton
                 onClick={() => setShowUpgrade(true)}
                 variant="primary"
-                title="Gérer votre abonnement"
+                title="Manage your subscription"
               >
                 Upgrade
               </NavButton>
-              <div className="w-px h-6 bg-neutral-dark" />{" "}
-              {/* Séparateur vertical */}
+              <div className="w-px h-6 bg-colorb/10" />
               <NavButton
                 onClick={() => setShowSettings(true)}
                 variant="icon"
-                title="Paramètres"
+                title="Settings"
                 icon={
                   <>
                     <path
@@ -68,7 +68,7 @@ export function DashboardView({ onLogout }) {
               <NavButton
                 onClick={onLogout}
                 variant="icon"
-                title="Déconnexion"
+                title="Logout"
                 icon={
                   <path
                     strokeLinecap="round"
