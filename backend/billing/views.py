@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 from authentication.jwt_claims import CustomTokenObtainPairSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
-from core.settings import FRONTEND_URL, STRIPE_SECRET_KEY_TEST, STRIPE_PREMIUM_PRICE_ID
+from core.settings import FRONTEND_URL, STRIPE_SECRET_KEY_TEST, STRIPE_STARTER_PRICE_ID, STRIPE_PRO_PRICE_ID, STRIPE_ENTERPRISE_PRICE_ID
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
@@ -49,7 +49,9 @@ class CreateCheckoutSessionView(APIView):
                 customer_id = subscription.customer_id
 
             price_id = {
-                2: STRIPE_PREMIUM_PRICE_ID,
+                1: STRIPE_STARTER_PRICE_ID,
+                2: STRIPE_PRO_PRICE_ID,
+                3: STRIPE_ENTERPRISE_PRICE_ID,
             }[plan_id]
 
             checkout_session = stripe.checkout.Session.create(
@@ -110,7 +112,9 @@ class CreateSubscriptionView(APIView):
                 plan=session.metadata.get('plan'),
                 price=price['unit_amount'] / 100,
                 interval=price['recurring']['interval'],
-                start_date=datetime.fromtimestamp(subscription['current_period_start'])
+                start_date=timezone.make_aware(
+                    datetime.fromtimestamp(subscription['current_period_start'])
+                )
             )
 
         token = CustomTokenObtainPairSerializer.get_token(user)
@@ -158,7 +162,9 @@ class CancelSubscriptionView(APIView):
 
         subscription.cancelled_at = now()
         stripe_subscription = stripe.Subscription.retrieve(subscription_id)
-        subscription.end_date = datetime.fromtimestamp(stripe_subscription['current_period_end'])
+        subscription.end_date = timezone.make_aware(
+            datetime.fromtimestamp(stripe_subscription['current_period_end'])
+        )
         subscription.save()
 
         return Response({'message': 'Subscription cancelled successfully', 'end_date': subscription.end_date.isoformat()}, status=status.HTTP_200_OK)

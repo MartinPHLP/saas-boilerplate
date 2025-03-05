@@ -134,8 +134,8 @@ export function ManageSubscriptionModal({ onClose }) {
             </div>
           ) : success ? (
             <div className="p-4 bg-colorc text-colora rounded-md text-sm text-center">
-              Subscription successfully cancelled. You will have access to
-              premium features until {formatDate(subscription.end_date)}.
+              Subscription successfully cancelled. You will have access to the
+              features until {formatDate(subscription.end_date)}.
             </div>
           ) : !subscription ? (
             <div className="text-colorb text-center py-4">

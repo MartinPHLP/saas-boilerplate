@@ -22,4 +22,4 @@ class User(AbstractUser):
             models.Q(cancelled_at__isnull=False, end_date__gt=timezone.now())
         ).first()
 
-        return subscription.plan if subscription else 1
+        return subscription.plan if subscription else 0

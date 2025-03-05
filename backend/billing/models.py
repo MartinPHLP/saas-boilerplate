@@ -5,8 +5,9 @@ from authentication.models import User
 
 class Subscription(models.Model):
     PLAN_CHOICES = [
-        (1, 'Free'),
-        (2, 'Premium'),
+        (1, 'Starter'),
+        (2, 'Pro'),
+        (3, 'Enterprise'),
     ]
 
     user = models.ForeignKey(

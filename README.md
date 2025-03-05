@@ -10,7 +10,7 @@ A minimalist single-page SaaS boilerplate with complete authentication system, c
   - Password reset via email
 - Customizable dashboard with permissions management
 - Stripe subscription billing:
-  - Free plan by default
+  - No plan by default
   - Premium plan integration
   - Complete subscription management
 

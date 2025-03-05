@@ -23,6 +23,20 @@ export function UpgradeModal({ onClose }) {
     }
   };
 
+  const shouldDisableSubscribe = (planId) => {
+    const token = Cookies.get("access_token");
+    if (!token) return false;
+
+    try {
+      const decoded = jwtDecode(token);
+      const currentPlan = parseInt(decoded.plan);
+      return currentPlan >= planId; // Désactive si le plan actuel est supérieur ou égal
+    } catch (error) {
+      console.error("Token decoding error:", error);
+      return false;
+    }
+  };
+
   const handleSubscribe = async (planId) => {
     setIsLoading(true);
     setError(null);
@@ -49,14 +63,20 @@ export function UpgradeModal({ onClose }) {
   const plans = [
     {
       id: 1,
-      name: "Free",
+      name: "Starter",
       price: 0,
       features: ["feature 1", "feature 2", "feature 3"],
     },
     {
       id: 2,
-      name: "Premium",
+      name: "Pro",
       price: 9.99,
+      features: ["feature 1", "feature 2", "feature 3"],
+    },
+    {
+      id: 3,
+      name: "Enterprise",
+      price: 19.99,
       features: ["feature 1", "feature 2", "feature 3"],
     },
   ];
@@ -82,7 +102,7 @@ export function UpgradeModal({ onClose }) {
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {plans.map((plan) => (
             <PlanCard
               key={plan.id}
@@ -92,7 +112,7 @@ export function UpgradeModal({ onClose }) {
               isCurrentPlan={isCurrentPlan(plan.id)}
               onSubscribe={() => handleSubscribe(plan.id)}
               isLoading={isLoading}
-              disableSubscribe={plan.id === 1}
+              disableSubscribe={shouldDisableSubscribe(plan.id)}
             />
           ))}
         </div>
