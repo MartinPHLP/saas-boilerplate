@@ -20,6 +20,7 @@ from django.contrib.auth import get_user_model
 from core.settings import FRONTEND_URL
 from email.message import EmailMessage
 from billing.models import Subscription
+from service.models import UserServiceData
 
 
 logger = logging.getLogger(__name__)
@@ -119,8 +120,9 @@ class DeleteAccountView(APIView):
 
         if user.is_authenticated:
             stripe.api_key = settings.STRIPE_SECRET_KEY_TEST
-            subscriptions = Subscription.objects.filter(user=user)
 
+            # Cancel and delete Stripe subscriptions
+            subscriptions = Subscription.objects.filter(user=user)
             for subscription in subscriptions:
                 try:
                     stripe.Subscription.modify(
@@ -128,12 +130,24 @@ class DeleteAccountView(APIView):
                         cancel_at_period_end=True
                     )
                     subscription.delete()
-
                 except stripe.error.StripeError as e:
                     logger.error(f"Error cancelling Stripe subscription: {str(e)}")
 
+            # Delete user's media folders if they exist
+            try:
+                if hasattr(user, 'service_data'):
+                    import shutil
+                    user_media_path = user.service_data.get_user_media_path
+                    if os.path.exists(user_media_path):
+                        shutil.rmtree(user_media_path)
+                        logger.info(f"User media folders deleted successfully: {user_media_path}")
+            except Exception as e:
+                logger.error(f"Error deleting user media folders: {str(e)}")
+
+            # Delete the user (this will cascade delete UserServiceData due to the OneToOneField)
             user.delete()
-            logger.info(f"User and subscriptions deleted successfully: {user.username}")
+            logger.info(f"User and related data deleted successfully: {user.username}")
+
             return Response({
                 'message': 'Account deleted successfully'
             }, status=status.HTTP_200_OK)
@@ -300,9 +314,18 @@ class VerifyEmailView(APIView):
             user = User.objects.get(pk=user_id)
 
             if default_token_generator.check_token(user, token):
+                # Activate user and verify email
                 user.is_active = True
                 user.is_email_verified = True
                 user.save()
+
+                # Create UserServiceData only if it doesn't exist
+                if not hasattr(user, 'service_data'):
+                    UserServiceData.objects.create(
+                        user=user,
+                        remaining_photo_credits=0,
+                        remaining_video_credits=0
+                    )
 
                 token = CustomTokenObtainPairSerializer.get_token(user)
 
@@ -323,7 +346,11 @@ class VerifyEmailView(APIView):
 
 
 class TestPlanView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, RequiredPlanPermission]
+    required_plan = 1
 
     def get(self, request):
-        return Response({'message': 'You have access to this resource', 'plan': request.user.effective_plan}, status=status.HTTP_200_OK)
+        return Response({
+            'message': 'You have access to this resource',
+            'plan': request.user.effective_plan
+        }, status=status.HTTP_200_OK)

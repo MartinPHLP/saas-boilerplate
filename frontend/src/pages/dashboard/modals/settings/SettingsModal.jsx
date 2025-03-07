@@ -9,6 +9,21 @@ export function SettingsModal({ onClose, onLogout }) {
   const [showManageSubscriptionModal, setShowManageSubscriptionModal] =
     useState(false);
 
+  const username = (() => {
+    try {
+      const token = document.cookie
+        .split(";")
+        .find((row) => row.trim().startsWith("access_token="))
+        ?.split("=")[1];
+      if (!token) return "";
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      return payload.username || "";
+    } catch (error) {
+      console.error("Error parsing token:", error);
+      return "";
+    }
+  })();
+
   const handleDeleteAccount = async () => {
     if (
       window.confirm(
@@ -48,7 +63,10 @@ export function SettingsModal({ onClose, onLogout }) {
     <div className="fixed inset-0 bg-colord/50 backdrop-blur-sm flex items-center justify-center">
       <div className="bg-white rounded-lg shadow-lg border border-colorb/10 p-6 w-96">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-colord">Settings</h2>
+          <div>
+            <h2 className="text-2xl font-bold text-colord">Settings</h2>
+            <p className="text-sm text-colorb mt-1">Connected as {username}</p>
+          </div>
           <button
             onClick={onClose}
             className="text-colorb hover:text-colord transition-colors p-2"

@@ -26,7 +26,7 @@ export function NavButton({
       onClick={onClick}
       title={title}
       className="p-2 text-colord hover:bg-colorc rounded-md
-                 transition-colors duration-200
+                 transition-colors duration-200 flex items-center gap-2
                  focus:outline-none focus:ring-2 focus:ring-colora/50 focus:ring-offset-2"
     >
       <svg
@@ -37,6 +37,7 @@ export function NavButton({
       >
         {icon}
       </svg>
+      {children && <span className="text-sm">{children}</span>}
     </button>
   );
 }
