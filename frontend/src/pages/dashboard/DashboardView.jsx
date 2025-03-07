@@ -5,11 +5,32 @@ import { UpgradeModal } from "./modals/upgrade/UpgradeModal";
 import { NavButton } from "./components/NavButton";
 import { DashboardContent } from "./components/DashboardContent";
 
+const getUserPlan = () => {
+  const token = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith("access_token="))
+    ?.split("=")[1];
+
+  if (!token) return 0;
+
+  try {
+    const decoded = JSON.parse(atob(token.split(".")[1]));
+    return decoded.plan || 0;
+  } catch (error) {
+    return 0;
+  }
+};
+
 export function DashboardView({ onLogout }) {
   const [showSettings, setShowSettings] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [currentView, setCurrentView] = useState("feature_1");
+
+  const userPlan = getUserPlan();
+  // Initialize currentView as null if plan is 0, otherwise default to "feature_1"
+  const [currentView, setCurrentView] = useState(
+    userPlan === 0 ? null : "feature_1"
+  );
 
   const handleSidebarAction = (action) => {
     setIsSidebarOpen(false);
@@ -28,6 +49,7 @@ export function DashboardView({ onLogout }) {
         />
       ),
       view: "feature_1",
+      requiredPlan: 1,
     },
     {
       title: "Feature 2",
@@ -40,6 +62,7 @@ export function DashboardView({ onLogout }) {
         />
       ),
       view: "feature_2",
+      requiredPlan: 2,
     },
     {
       title: "Feature 3",
@@ -52,8 +75,29 @@ export function DashboardView({ onLogout }) {
         />
       ),
       view: "feature_3",
+      requiredPlan: 1,
     },
   ];
+
+  const handleNavigation = (item) => {
+    if (userPlan >= item.requiredPlan) {
+      handleSidebarAction(() => setCurrentView(item.view));
+    } else {
+      setShowUpgrade(true);
+    }
+  };
+
+  const renderContent = () => {
+    if (currentView === null) {
+      return renderUpgradeMessage();
+    }
+
+    switch (
+      currentView
+      // ... existing cases ...
+    ) {
+    }
+  };
 
   return (
     <div className="flex min-h-screen bg-colorc">
@@ -101,15 +145,38 @@ export function DashboardView({ onLogout }) {
           {navigationItems.map((item) => (
             <NavButton
               key={item.view}
-              onClick={() =>
-                handleSidebarAction(() => setCurrentView(item.view))
-              }
+              onClick={() => handleNavigation(item)}
               variant="icon"
               title={item.title}
               icon={item.icon}
               isActive={currentView === item.view}
+              className={`
+                ${
+                  userPlan < item.requiredPlan
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                }
+                ${currentView === item.view ? "bg-colorc" : ""}
+              `}
             >
-              {item.title}
+              <div className="flex items-center justify-between w-full">
+                {item.title}
+                {userPlan < item.requiredPlan && (
+                  <svg
+                    className="w-4 h-4 ml-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                    />
+                  </svg>
+                )}
+              </div>
             </NavButton>
           ))}
         </nav>
@@ -192,7 +259,10 @@ export function DashboardView({ onLogout }) {
           </button>
         </div>
 
-        <DashboardContent currentView={currentView} />
+        <DashboardContent
+          currentView={currentView}
+          onUpgradeClick={() => setShowUpgrade(true)}
+        />
       </main>
 
       {/* Modals */}

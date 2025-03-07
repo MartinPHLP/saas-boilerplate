@@ -30,7 +30,7 @@ export function UpgradeModal({ onClose }) {
     try {
       const decoded = jwtDecode(token);
       const currentPlan = parseInt(decoded.plan);
-      return currentPlan >= planId; // Désactive si le plan actuel est supérieur ou égal
+      return currentPlan >= planId;
     } catch (error) {
       console.error("Token decoding error:", error);
       return false;

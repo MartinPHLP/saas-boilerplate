@@ -4,27 +4,28 @@ import stripe
 import smtplib
 import logging
 import certifi
-from rest_framework import status
-from rest_framework.views import APIView
-from django.contrib.auth import authenticate
-from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from .serializers import UserSerializer, RegisterSerializer
-from .jwt_claims import CustomTokenObtainPairSerializer
-from .permissions import RequiredPlanPermission
-from django.contrib.auth.tokens import default_token_generator
+
 from django.conf import settings
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_str
-from django.contrib.auth import get_user_model
+from rest_framework import status
 from core.settings import FRONTEND_URL
 from email.message import EmailMessage
 from billing.models import Subscription
-from service.models import UserServiceData
+from rest_framework.views import APIView
+from django.contrib.auth import authenticate
+from rest_framework.response import Response
+from django.contrib.auth import get_user_model
+from .permissions import RequiredPlanPermission
+from .jwt_claims import CustomTokenObtainPairSerializer
+from django.utils.encoding import force_bytes, force_str
+from .serializers import UserSerializer, RegisterSerializer
+from django.contrib.auth.tokens import default_token_generator
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
+
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]
@@ -144,7 +145,6 @@ class DeleteAccountView(APIView):
             except Exception as e:
                 logger.error(f"Error deleting user media folders: {str(e)}")
 
-            # Delete the user (this will cascade delete UserServiceData due to the OneToOneField)
             user.delete()
             logger.info(f"User and related data deleted successfully: {user.username}")
 
@@ -318,14 +318,6 @@ class VerifyEmailView(APIView):
                 user.is_active = True
                 user.is_email_verified = True
                 user.save()
-
-                # Create UserServiceData only if it doesn't exist
-                if not hasattr(user, 'service_data'):
-                    UserServiceData.objects.create(
-                        user=user,
-                        remaining_photo_credits=0,
-                        remaining_video_credits=0
-                    )
 
                 token = CustomTokenObtainPairSerializer.get_token(user)
 

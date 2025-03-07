@@ -1,24 +1,20 @@
-import json
 import stripe
 
-from .models import Subscription
-from rest_framework import status
-from django.http import HttpResponse
-from authentication.models import User
-from datetime import datetime
-from django.utils.timezone import now
-from rest_framework.views import APIView
-from authentication.jwt_claims import CustomTokenObtainPairSerializer
-from django.shortcuts import get_object_or_404
-from rest_framework.response import Response
-from core.settings import FRONTEND_URL, STRIPE_SECRET_KEY_TEST, STRIPE_STARTER_PRICE_ID, STRIPE_PRO_PRICE_ID, STRIPE_ENTERPRISE_PRICE_ID
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth import get_user_model
-from django.conf import settings
-from django.utils import timezone
 from django.db import models
+from datetime import datetime
+from .models import Subscription
+from django.conf import settings
+from rest_framework import status
+from django.utils import timezone
+from django.utils.timezone import now
+from authentication.models import User
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 from .serializers import SubscriptionSerializer
+from rest_framework.permissions import IsAuthenticated
+from authentication.jwt_claims import CustomTokenObtainPairSerializer
+from core.settings import FRONTEND_URL, STRIPE_SECRET_KEY_TEST, STRIPE_STARTER_PRICE_ID, STRIPE_PRO_PRICE_ID, STRIPE_ENTERPRISE_PRICE_ID
 
 
 class CreateCheckoutSessionView(APIView):
@@ -29,14 +25,16 @@ class CreateCheckoutSessionView(APIView):
         user = request.user
         plan_id = request.data.get('plan_id')
 
-        if not plan_id or plan_id not in [2]:
+        if not plan_id or plan_id not in [1, 2, 3]:
             return Response(
                 {'error': 'Invalid plan id'},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
         try:
-            subscription = user.subscription.filter(cancelled_at__isnull=True).first()
+            subscription = user.subscription.filter(
+                models.Q(end_date__isnull=True) | models.Q(end_date__gt=timezone.now())
+            ).order_by('-start_date').first()
 
             if not subscription:
                 customer = stripe.Customer.create(
@@ -98,40 +96,62 @@ class CreateSubscriptionView(APIView):
         session = stripe.checkout.Session.retrieve(session_id)
         user_id = session.metadata.get('user_id')
         user = User.objects.get(id=user_id)
+
+        # Check for existing active subscription without end_date
+        existing_subscription = user.subscription.filter(
+            end_date__isnull=True
+        ).first()
+
+        if existing_subscription:
+            # Cancel the existing subscription in Stripe
+            stripe.Subscription.modify(
+                existing_subscription.subscription_id,
+                cancel_at_period_end=True
+            )
+
+            # Update our database
+            stripe_sub = stripe.Subscription.retrieve(existing_subscription.subscription_id)
+            existing_subscription.cancelled_at = now()
+            existing_subscription.end_date = timezone.make_aware(
+                datetime.fromtimestamp(stripe_sub['current_period_end'])
+            )
+            existing_subscription.save()
+
+        # Create new subscription
         subscription = stripe.Subscription.retrieve(session.subscription)
         price = subscription['items']['data'][0]['price']
         product_id = price['product']
         product = stripe.Product.retrieve(product_id)
 
-        if session_id:
-            subscription_obj, created = Subscription.objects.get_or_create(
-                user=user,
-                customer_id=session.customer,
-                subscription_id=session.subscription,
-                product_name=product.name,
-                plan=session.metadata.get('plan'),
-                price=price['unit_amount'] / 100,
-                interval=price['recurring']['interval'],
-                start_date=timezone.make_aware(
-                    datetime.fromtimestamp(subscription['current_period_start'])
-                )
+        subscription_obj, created = Subscription.objects.get_or_create(
+            user=user,
+            customer_id=session.customer,
+            subscription_id=session.subscription,
+            product_name=product.name,
+            plan=session.metadata.get('plan'),
+            price=price['unit_amount'] / 100,
+            interval=price['recurring']['interval'],
+            start_date=timezone.make_aware(
+                datetime.fromtimestamp(subscription['current_period_start'])
             )
+        )
 
         token = CustomTokenObtainPairSerializer.get_token(user)
-
-        return Response({'token': str(token.access_token), 'message': 'Subscription created successfully'}, status=status.HTTP_200_OK) if created else Response({'token': str(token.access_token), 'message': 'Subscription already exists'}, status=status.HTTP_200_OK)
+        return Response({
+            'token': str(token.access_token),
+            'message': 'Subscription created successfully'
+        }, status=status.HTTP_200_OK)
 
 class GetSubscriptionView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        # Get active subscription or cancelled but not yet expired subscription
         subscription = (
             request.user.subscription
             .filter(
-                models.Q(cancelled_at__isnull=True) |
-                models.Q(cancelled_at__isnull=False, end_date__gt=timezone.now())
+                models.Q(end_date__isnull=True) | models.Q(end_date__gt=timezone.now())
             )
+            .order_by('-start_date')
             .first()
         )
 
