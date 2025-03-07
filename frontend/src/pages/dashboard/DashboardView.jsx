@@ -18,7 +18,7 @@ export function DashboardView({ onLogout }) {
 
   const navigationItems = [
     {
-      title: "My Feature 1",
+      title: "My Reels",
       icon: (
         <path
           strokeLinecap="round"
@@ -30,7 +30,7 @@ export function DashboardView({ onLogout }) {
       view: "feature_1",
     },
     {
-      title: "My Feature 2",
+      title: "Feature 2",
       icon: (
         <path
           strokeLinecap="round"
@@ -42,7 +42,7 @@ export function DashboardView({ onLogout }) {
       view: "feature_2",
     },
     {
-      title: "My Feature 3",
+      title: "Feature 3",
       icon: (
         <path
           strokeLinecap="round"
@@ -68,7 +68,7 @@ export function DashboardView({ onLogout }) {
       {/* Sidebar */}
       <aside
         className={`
-        fixed lg:static inset-y-0 left-0 z-30
+        fixed lg:static inset-y-0 left-0 z-20
         w-64 bg-white shadow-sm border-r border-colorb/10
         flex flex-col transform transition-transform duration-300 ease-in-out
         lg:transform-none
@@ -197,13 +197,35 @@ export function DashboardView({ onLogout }) {
 
       {/* Modals */}
       {showSettings && (
-        <SettingsModal
-          onClose={() => setShowSettings(false)}
-          onLogout={onLogout}
-        />
+        <>
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-40"
+            onClick={() => setShowSettings(false)}
+          />
+          <div className="fixed inset-0 z-50 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4">
+              <SettingsModal
+                onClose={() => setShowSettings(false)}
+                onLogout={onLogout}
+              />
+            </div>
+          </div>
+        </>
       )}
 
-      {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
+      {showUpgrade && (
+        <>
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-40"
+            onClick={() => setShowUpgrade(false)}
+          />
+          <div className="fixed inset-0 z-50 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4">
+              <UpgradeModal onClose={() => setShowUpgrade(false)} />
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
