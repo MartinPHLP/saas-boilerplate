@@ -91,8 +91,8 @@ export function SettingsModal({ onClose, onLogout }) {
           </button>
           <button
             onClick={handleDeleteAccount}
-            className="w-full px-4 py-3 text-white bg-red-500
-                       rounded-md hover:bg-red-600 transition-colors duration-200 font-medium"
+            className="w-full px-4 py-3 text-white bg-colora
+                       rounded-md hover:bg-colorb transition-colors duration-200 font-medium"
           >
             Delete my account
           </button>
