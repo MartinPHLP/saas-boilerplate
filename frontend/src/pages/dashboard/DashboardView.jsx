@@ -9,11 +9,51 @@ export function DashboardView({ onLogout }) {
   const [showSettings, setShowSettings] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [currentView, setCurrentView] = useState("feature_1");
 
   const handleSidebarAction = (action) => {
     setIsSidebarOpen(false);
     action();
   };
+
+  const navigationItems = [
+    {
+      title: "My Feature 1",
+      icon: (
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+        />
+      ),
+      view: "feature_1",
+    },
+    {
+      title: "My Feature 2",
+      icon: (
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+        />
+      ),
+      view: "feature_2",
+    },
+    {
+      title: "My Feature 3",
+      icon: (
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+        />
+      ),
+      view: "feature_3",
+    },
+  ];
 
   return (
     <div className="flex min-h-screen bg-colorc">
@@ -58,7 +98,20 @@ export function DashboardView({ onLogout }) {
 
         {/* Main navigation buttons */}
         <nav className="p-4 flex flex-col gap-2">
-          {/* Add your main feature buttons here */}
+          {navigationItems.map((item) => (
+            <NavButton
+              key={item.view}
+              onClick={() =>
+                handleSidebarAction(() => setCurrentView(item.view))
+              }
+              variant="icon"
+              title={item.title}
+              icon={item.icon}
+              isActive={currentView === item.view}
+            >
+              {item.title}
+            </NavButton>
+          ))}
         </nav>
 
         {/* Settings navigation - pushed to bottom */}
@@ -139,7 +192,7 @@ export function DashboardView({ onLogout }) {
           </button>
         </div>
 
-        <DashboardContent />
+        <DashboardContent currentView={currentView} />
       </main>
 
       {/* Modals */}
