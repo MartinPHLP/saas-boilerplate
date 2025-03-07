@@ -18,7 +18,7 @@ export function DashboardView({ onLogout }) {
 
   const navigationItems = [
     {
-      title: "My Reels",
+      title: "Feature 1",
       icon: (
         <path
           strokeLinecap="round"
